@@ -7,3 +7,9 @@ j360-cloud
 - monitor
 - servicediscover
 
+- configserver
+
+- client
+
+
+
