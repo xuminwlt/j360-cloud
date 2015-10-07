@@ -1,0 +1,14 @@
+---
+server:
+  port: 8080
+
+cloudservice:
+  ribbon:
+    DeploymentContextBasedVipAddresses: j360-cloud-service
+    NIWSServerListClassName: com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList
+    ReadTimeout: 5000
+    MaxAutoRetries: 2
+
+
+another:
+  key: anotherkeyvalue

@@ -1,0 +1,17 @@
+---
+spring:
+  application:
+    name: j360-cloud-clientui
+  cloud:
+    config:
+      enabled: true
+      discovery:
+        enabled: true
+        serviceId: j360-cloud-config
+
+eureka:
+  instance:
+    nonSecurePort: ${server.port:8080}
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/

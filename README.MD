@@ -1,164 +1,36 @@
-j360-cloud
+j360-cloud 基于Spring Cloud的微服务架构设计
 ==============
-
--* 基于spring cloud应用在分布式系统中的运用
+- *基于spring cloud应用在分布式系统中的运用*
     - config
     - eureka
-    - monitor
-    - servicediscover
-
-##Spring Cloud Netflix##
--   应用程序+Netflix 组件构建大型分布式系统。包括
-    -   服务发现(Eureka)
-    -   断路器(Hystrix) 
-    -   智能路由(Zuul)
-    -   客户端负载均衡(Ribbon)
-
-###服务发现(Eureka)###
--* Eureka Client
--   注册
-    - @EnableEurekaClient
-    - application.yml
+    - dashboard
+    - serviceDiscover
+    - Declarative REST Client: Feign
     
-    ```
-        eureka:
-          client:
-            serviceUrl:
-              defaultZone: http://localhost:8761/eureka/
-    ```
--* Eureka Server
--   @EnableEurekaServer
-- 【注】服务器有一个主页界面，HTTP API Eureka功能端点 /eureka/*。
-####Standalone Mode####
--   application.yml (Standalone Eureka Server)
-    -   serviceUrl指向同一个本地实例的host
-    
-```
-server:
-  port: 8761
+#构建#  
+- Java 1.7+(官方建议1.8)
+- Maven 3.2+
+- Spring 4.1.3
+- Spring-boot 1.2.4.RELEASE
+- Spring-cloud 1.0.3
 
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    registerWithEureka: false
-    fetchRegistry: false
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-```
-
-####High Availability, Zones and Regions####
-- ...
-
-###断路器(Hystrix) ###
-- Hystrix Client
-- Hystrix DashBoard
-
-###智能路由(Zuul) ###
-- Netflix uses Zuul for the following:
-    - Authentication
-    - Insights
-    - Stress Testing
-    - Canary Testing
-    - Dynamic Routing
-    - Service Migration
-    - Load Shedding
-    - Security
-    - Static Response handling
-    - Active/Active traffic management
+#模块#
+- j360-cloud-config 分布式配置服务器，可选本地文件或远程git服务作为资源库
+- j360-cloud-eureka Service Discovery服务器，用于service注册等管理服务
+- j360-cloud-dashboard eureka的监控平台
+- j360-cloud-service 自定义业务service
+- j360-cloud-clientui 自定义业务client，用于展示和调用service
 
 
-###客户端负载均衡(Ribbon) ###
-- Ribbon提供客户端的负载均衡，可以为http和tcp客户端提供控制功能，Feign 同样使用Ribbon
-- 定制Ribbon客户端
-- Eureka中使用Ribbon
+##j360-cloud-config ##
+- 设置注解@EnableConfigServer
 
-```
+##j360-cloud-eureka##
+- 设置注解@EnableEurekaServer
+- application.yml(Standalone Mode)
 
-```
-- 直接使用RibbonAPI
+##j360-cloud-dashboard##
 
-```
-public class MyClass {
-    @Autowired
-    private LoadBalancerClient loadBalancer;
+##j360-cloud-service##
 
-    public void doStuff() {
-        ServiceInstance instance = loadBalancer.choose("stores");
-        URI storesUri = URI.create(String.format("http://%s:%s", instance.getHost(), instance.getPort()));
-        // ... do something with the URI
-    }
-}
-```
-
-##声明式 REST Client: Feign##
-- Spring Cloud整合Ribbon和Eureka提供负载均衡的http client时使用Feign.
-
-- 实例案例
-
-```
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
-@EnableEurekaClient
-@EnableFeignClients
-public class Application {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-}
-```
-- 调用(StoreClient.java)
-
-```
-@FeignClient("stores")
-public interface StoreClient {
-    @RequestMapping(method = RequestMethod.GET, value = "/stores")
-    List<Store> getStores();
-
-    @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
-    Store update(@PathParameter("storeId") Long storeId, Store store);
-}
-```
-
-###继承支持###
-
-```
-UserService.java
-public interface UserService {
-
-    @RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
-    User getUser(@PathVariable("id") long id);
-}
-UserResource.java
-@RestController
-public class UserResource implements UserService {
-
-}
-UserClient.java
-@FeignClient("users")
-public interface UserClient extends UserService {
-
-}
-```
-
-##Spring Cloud Bus##
-- Spring Cloud Bus通过轻量级消息代理连接分布式系统的每个节点
-- 添加依赖spring-cloud-starter-bus-amqp
-- Rabbit config
-
-```
-spring:
-  rabbitmq:
-    host: mybroker.com
-    port: 5672
-    username: user
-    password: secret
-```
-- http端点
-    - /bus/*
-    - /bus/env 发送key/values键值对更新spring环境变量
-    - /bus/refresh 更新所有的环境变量
-    
+##j360-cloud-clientui##
